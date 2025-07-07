@@ -1,0 +1,6 @@
+@echart_dentnu_api_HostAddress = http://localhost:5280
+
+GET {{echart_dentnu_api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

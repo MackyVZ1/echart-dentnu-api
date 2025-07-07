@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "echart_dentnu_api", "echart_dentnu_api.csproj", "{38677038-E3BB-7F8F-925F-CC8D2E05A6BA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{38677038-E3BB-7F8F-925F-CC8D2E05A6BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38677038-E3BB-7F8F-925F-CC8D2E05A6BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38677038-E3BB-7F8F-925F-CC8D2E05A6BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38677038-E3BB-7F8F-925F-CC8D2E05A6BA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D38D0515-E786-4C38-9BC9-959429AC73FA}
+	EndGlobalSection
+EndGlobal
