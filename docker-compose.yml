@@ -1,0 +1,63 @@
+version: "3.8"
+
+services:
+  # mysql:
+  #   image: mysql:8.0
+  #   container_name: mysql_net8
+  #   restart: always
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+  #     MYSQL_DATABASE: ${DB_NAME}
+  #     MYSQL_DEFAULT_AUTHENTICATION_PLUGIN: mysql_native_password
+  #   ports:
+  #     - "3306:3306"
+  #   volumes:
+  #     # **สำคัญมาก:** ใช้ Docker Volume เพื่อเก็บข้อมูลฐานข้อมูล
+  #     # ข้อมูลจะไม่หายไปแม้ Container ถูกลบ
+  #     - db_data:/var/lib/mysql
+  #   networks:
+  #     - app-network
+
+  dentnu-api:
+    build:
+      context: . # Build context is the current directory where Dockerfile is located
+      dockerfile: Dockerfile # Specify the Dockerfile for your .NET app
+    container_name: dentnu_api_container
+    restart: on-failure # Restart if the container exits with an error
+    ports:
+      - "8080:8080" # Map host port 8080 to container port 8080
+    environment:
+      # Pass the DB_CONNECTION_STRING from .env to the container
+      # This is how your .NET app will get the connection string for Alwaysdata DB
+      - DB_CONNECTION_STRING=${DB_CONNECTION_STRING}
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT} # Pass environment for local dev
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ISSUER=${JWT_ISSUER}
+      - JWT_AUDIENCE=${JWT_AUDIENCE}
+      - JWT_TOKEN_EXPIRE_MINUTES=${JWT_TOKEN_EXPIRE_MINUTES}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+    networks:
+      - app-network # Connect to the shared network
+
+  # phpmyadmin:
+  #   image: phpmyadmin/phpmyadmin:5.2
+  #   container_name: phpmyadmin_net8
+  #   restart: always
+  #   environment:
+  #     PMA_HOST: mysql
+  #     PMA_PORT: 3306
+  #     MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+  #   ports:
+  #     - "8080:80"
+  #   networks:
+  #     - app-network
+  #   depends_on:
+  #     - mysql
+
+networks:
+  app-network:
+    driver: bridge
+# volumes:
+#   db_data: {}
+# docker-compose up --build -d
