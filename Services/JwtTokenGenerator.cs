@@ -30,10 +30,9 @@ namespace echart_dentnu_api.Services
                 return new TokenResponse
                 {
                     AccessToken = accessToken,
-                    ExpiresIn = expirationMinutes * 60, // Convert to seconds
-                    ExpiresAt = DateTime.UtcNow.AddMinutes(expirationMinutes),
                     Role = roleName,
                     UserId = user.UserId.ToString(),
+                    Users = user.Users
                 };
             }
             catch (Exception ex)
