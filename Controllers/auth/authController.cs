@@ -52,7 +52,6 @@ namespace echart_dentnu_api.Controllers
                 _logger.LogInformation($"Token: {tokenResponse.AccessToken}");
                 _logger.LogInformation($"Token Length: {tokenResponse.AccessToken.Length}");
                 _logger.LogInformation($"Token Dots Count: {tokenResponse.AccessToken.Count(c => c == '.')}");
-                _logger.LogInformation($"Token RefressToken:{tokenResponse.RefreshToken}");
 
                 // ตรวจสอบว่า token มี 3 ส่วนหรือไม่
                 var tokenParts = tokenResponse.AccessToken.Split('.');
