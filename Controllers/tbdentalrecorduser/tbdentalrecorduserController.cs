@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using echart_dentnu_api.Helper;
 using echart_dentnu_api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using echart_dentnu_api.Database; // Add this line if your Database context is in this namespace
 
 namespace backend_net6.Controllers
 {
@@ -14,9 +16,9 @@ namespace backend_net6.Controllers
     public class tbdentalrecorduserController : ControllerBase
     {
         private readonly ILogger<tbdentalrecorduserController> _logger;
-        private readonly Database _db;
+        private readonly AppDbContext _db;
 
-        public tbdentalrecorduserController(ILogger<tbdentalrecorduserController> logger, Database db)
+        public tbdentalrecorduserController(ILogger<tbdentalrecorduserController> logger, AppDbContext db)
         {
             _logger = logger;
             _db = db;
