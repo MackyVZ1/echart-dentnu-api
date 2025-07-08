@@ -1,10 +1,22 @@
+
+using echart_dentnu_api.Models;
+
 namespace echart_dentnu_api.Services
 {
     public interface IJwtTokenGenerator
     {
-        string GenerateToken(echart_dentnu_api.Models.tbdentalrecorduserModel user);
-        // ถ้าต้องการส่งข้อมูล RoleName กลับด้วย อาจเปลี่ยนเป็น
-        // (string Token, string RoleName) GenerateToken(backend_net6.Models.tbdentalrecorduserModel user);
-        // หรือให้ AutController สร้าง RoleName เอง
+        TokenResponse GenerateTokenResponse(tbdentalrecorduserModel user);
+    }
+
+    public class TokenResponse
+    {
+        public string AccessToken { get; set; } = string.Empty;
+        public string RefreshToken { get; set; } = string.Empty;
+        public string TokenType { get; set; } = "Bearer";
+        public int ExpiresIn { get; set; }
+        public DateTime ExpiresAt { get; set; }
+        public string Role { get; set; } = string.Empty;
+        public string UserId { get; set; } = string.Empty;
+        public string ClinicId { get; set; } = string.Empty;
     }
 }
