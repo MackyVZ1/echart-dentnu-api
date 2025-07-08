@@ -1,9 +1,8 @@
 using System.ComponentModel.DataAnnotations;
-using System.Net;
+using echart_dentnu_api.Database;
 using echart_dentnu_api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -16,9 +15,9 @@ namespace backend_net6.Controllers
     public class tpatientController : ControllerBase
     {
         private readonly ILogger<tpatientController> _logger;
-        private readonly Database _db;
+        private readonly AppDbContext _db;
 
-        public tpatientController(ILogger<tpatientController> logger, Database db)
+        public tpatientController(ILogger<tpatientController> logger, AppDbContext db)
         {
             _logger = logger;
             _db = db;
