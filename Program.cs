@@ -173,6 +173,7 @@ builder.Services.AddCors(options =>
         var allowedOrigins = builder.Configuration["CORS_ALLOWED_ORIGINS"]?.Split(';', StringSplitOptions.RemoveEmptyEntries);
         if (allowedOrigins != null && allowedOrigins.Length > 0)
         {
+            Console.WriteLine($"CORS Allowed Origins: {string.Join(", ", allowedOrigins)}"); // Add this line for debugging
             corsBuilder.WithOrigins(allowedOrigins)
                        .AllowAnyHeader()
                        .AllowAnyMethod();
