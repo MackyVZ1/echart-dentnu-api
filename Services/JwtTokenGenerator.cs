@@ -32,7 +32,8 @@ namespace echart_dentnu_api.Services
                     AccessToken = accessToken,
                     Role = roleName,
                     UserId = user.UserId.ToString(),
-                    Users = user.Users
+                    Users = user.Users,
+                    RoleID = user.RoleID,
                 };
             }
             catch (Exception ex)
