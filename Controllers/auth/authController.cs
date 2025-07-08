@@ -23,6 +23,11 @@ namespace echart_dentnu_api.Controllers
             _jwtTokenGenerator = jwtTokenGenerator;
         }
 
+
+        /// <response code="200">Userinfo with token</response>
+        /// <response code="400">Username and password are required, Wrong Password</response>
+        /// <response code="404">User not found</response>
+        /// <response code="500">Token generation failed, Internal Server Error</response>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
         {
@@ -36,10 +41,10 @@ namespace echart_dentnu_api.Controllers
                 var user = await _db.Tbdentalrecordusers
                                     .FirstOrDefaultAsync(u => u.Users == loginRequest.Users);
 
-                if (user == null || user.Passw != Helper.PasswordHasher.HashMd5(loginRequest.Passw))
-                {
-                    return Unauthorized(new { Message = "Invalid credentials" });
-                }
+                if (user == null) return NotFound("User not found");
+
+
+                if (user.Passw != Helper.PasswordHasher.HashMd5(loginRequest.Passw)) return BadRequest("Wrong Password");
 
                 user.Status = 1;
                 _db.Tbdentalrecordusers.Update(user);
@@ -70,6 +75,11 @@ namespace echart_dentnu_api.Controllers
             }
         }
 
+        /// <response code="200">Logged out successfully</response>
+        /// <response code="400">Username and password are required, Wrong Password</response>
+        /// <response code="401">Invalid user identifier in token</response>
+        /// <response code="404">User not found</response>
+        /// <response code="500">Internal Server Error</response>
         [HttpPost("logout")]
         [Authorize]
         public async Task<IActionResult> Logout()
