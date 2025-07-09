@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using echart_dentnu_api.Services;
 using System.Security.Claims;
 using echart_dentnu_api.Database;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace echart_dentnu_api.Controllers
 {
@@ -29,6 +30,7 @@ namespace echart_dentnu_api.Controllers
         /// <response code="404">User not found</response>
         /// <response code="500">Token generation failed, Internal Server Error</response>
         [HttpPost("login")]
+        [EnableRateLimiting("loginLimiter")]
         public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
         {
             if (string.IsNullOrEmpty(loginRequest.Users) || string.IsNullOrEmpty(loginRequest.Passw))
