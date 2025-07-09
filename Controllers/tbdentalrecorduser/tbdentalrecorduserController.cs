@@ -4,7 +4,8 @@ using echart_dentnu_api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using echart_dentnu_api.Database; // Add this line if your Database context is in this namespace
+using echart_dentnu_api.Database;
+using Microsoft.AspNetCore.RateLimiting; // Add this line if your Database context is in this namespace
 
 namespace backend_net6.Controllers
 {
@@ -40,6 +41,7 @@ namespace backend_net6.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize(Roles = "Administrator")]
+        [EnableRateLimiting("writeLimiter")]
         public async Task<IActionResult> PostTbdentalrecorduser([FromBody] tbdentalrecorduserModel user)
         {
             _logger.LogDebug("POST /api/tbdentalrecorduser");
@@ -83,6 +85,7 @@ namespace backend_net6.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize(Roles = "Administrator")]
+        [EnableRateLimiting("readLimiter")]
         public async Task<ActionResult<PaginatedUsersResponse>> GetTbdentalrecordusers([FromQuery] GetUsersQueryParams queryParams)
         {
             _logger.LogDebug("GET /api/tbdentalrecorduser with query: Page={Page}, Limit={Limit}, Keyword={Keyword}, RoleId={RoleId}, ClinicId={ClinicId}",
@@ -173,6 +176,7 @@ namespace backend_net6.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize(Roles = "Administrator")]
+        [EnableRateLimiting("readLimiter")]
         public async Task<ActionResult<tbdentalrecorduserModel>> GetTbdentalrecorduser([FromRoute] int userId)
         {
             _logger.LogDebug("GET /api/tbdentalrecorduser/{userId}", userId);
@@ -210,6 +214,7 @@ namespace backend_net6.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize(Roles = "Administrator")]
+        [EnableRateLimiting("writeLimiter")]
         public async Task<IActionResult> DeleteTbdentalrecorduser([FromRoute] int userId)
         {
             _logger.LogDebug("DELETE /api/tbdentalrecorduser/{userId}", userId);
@@ -248,6 +253,7 @@ namespace backend_net6.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize(Roles = "Administrator")]
+        [EnableRateLimiting("writeLimiter")]
         public async Task<IActionResult> PatchTbdentalrecorduser([FromRoute] int userId, tbdentalrecorduserPatchDto patchDto)
         {
             _logger.LogDebug("PATCH /api/tbdentalrecorduser/{userId}", userId);

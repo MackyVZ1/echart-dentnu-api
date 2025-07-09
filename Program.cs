@@ -8,6 +8,9 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using DotNetEnv;
 using echart_dentnu_api.Services;
 using echart_dentnu_api.Database;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
+using Grpc.Core;
 
 // Load .env file only in Development environment
 if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
@@ -199,6 +202,43 @@ builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 // 7. Custom Application Services
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
+// 8. API limiter
+builder.Services.AddRateLimiter(rateLimiterOptions =>
+{
+    // 1. for GET
+    rateLimiterOptions.AddFixedWindowLimiter("readLimiter", options =>
+    {
+        options.PermitLimit = 50; // ยิง request ได้ 50 ครั้ง
+        options.Window = TimeSpan.FromSeconds(30); // ใน 30 วินาที
+        options.QueueLimit = 100; // ถ้ายิงเกิน 50 ครั้ง ก็จะให้รอในคิวได้อีก 100 ครั้ง
+        /*  เช่น มี 150 คนยิง request พร้อมกันในช่วง 30 วินาที
+            - รับ 50 request แรก -> ผ่านเลย
+            - 100 request ถัดไป -> รออยู่ในคิว
+            - เกิน 150 request -> ปฏิเสธทันที (429 Too Many Requests) */
+        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst; // คิวจะจัดลำดับแบบมาก่อน-ออกก่อน
+    });
+
+    // 2. for POST,PATCH,DELETE
+    rateLimiterOptions.AddFixedWindowLimiter("writeLimiter", options =>
+    {
+        options.PermitLimit = 3; 
+        options.Window = TimeSpan.FromMinutes(1);
+        options.QueueLimit = 2;
+        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+    });
+
+    // 3. for login
+    rateLimiterOptions.AddFixedWindowLimiter("loginLimiter", options =>
+    {
+        options.PermitLimit = 5; // ยิง request ได้ 5 ครั้ง
+        options.Window = TimeSpan.FromMinutes(1); // ใน 1 นาที
+        options.QueueLimit = 0; // ถ้ายิงเกิน 5 ครั้ง จะปฏิเสธทันที
+        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+    });
+
+    rateLimiterOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
 
 // --- HTTP Request Pipeline ---
 
@@ -232,6 +272,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseRateLimiter(); // API limiter
 
 // Add security headers
 app.Use(async (context, next) =>

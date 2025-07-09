@@ -3,6 +3,7 @@ using echart_dentnu_api.Database;
 using echart_dentnu_api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -39,6 +40,7 @@ namespace backend_net6.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize(Roles = "Administrator, เวชระเบียน")]
+        [EnableRateLimiting("writeLimiter")]
         public async Task<IActionResult> PostTpatient([FromBody] tpatientModel patient)
         {
             _logger.LogDebug("POST /api/tpatient");
@@ -81,6 +83,7 @@ namespace backend_net6.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize(Roles = "Administrator, เวชระเบียน")]
+        [EnableRateLimiting("readLimiter")]
         public async Task<ActionResult<PaginatedPatientResponse>> GetTpatients([FromQuery] GetPatientQueryParams queryParams)
         {
             _logger.LogDebug("GET /api/tpatient with query: Page={Page}, Limit={Limit}, Keyword={Keyword}",
@@ -158,6 +161,7 @@ namespace backend_net6.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize(Roles = "Administrator, เวชระเบียน")]
+        [EnableRateLimiting("readLimiter")]
         public async Task<ActionResult<tpatientModel>> GetTpatient([FromRoute] string dn)
         {
             _logger.LogDebug("GET /api/tpatient/{dn}", dn);
@@ -195,6 +199,7 @@ namespace backend_net6.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize(Roles = "Administrator")]
+        [EnableRateLimiting("writeLimiter")]
         public async Task<IActionResult> DeleteTpatient([FromRoute] string dn)
         {
             _logger.LogDebug("DELETE /api/tpatient/{dn}", dn);
@@ -236,6 +241,7 @@ namespace backend_net6.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize(Roles = "Administrator, เวชระเบียน")]
+        [EnableRateLimiting("writeLimiter")]
         public async Task<IActionResult> PatchTpatient([FromRoute] string dn, tpatientPatchDto patchDto)
         {
             _logger.LogDebug("PATCH /api/tpatient/{dn}", dn);
