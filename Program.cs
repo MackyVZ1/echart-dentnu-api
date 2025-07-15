@@ -4,19 +4,19 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using DotNetEnv;
 using echart_dentnu_api.Services;
 using echart_dentnu_api.Database;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
-using Grpc.Core;
+
+Env.Load();
 
 // Load .env file only in Development environment
 if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
 {
     Console.WriteLine("--- Loading .env file (Development) ---");
-    Env.Load();
+    // Env.Load();
     Console.WriteLine("--- .env file loaded successfully ---");
 }
 
@@ -24,6 +24,8 @@ if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development
 
 var builder = WebApplication.CreateBuilder(args);
 var environmentName = builder.Environment.EnvironmentName;
+
+
 
 Console.WriteLine($"Current Environment: {environmentName}");
 Console.WriteLine($"JWT_SECRET: {builder.Configuration["JWT_SECRET"]}");
@@ -221,7 +223,7 @@ builder.Services.AddRateLimiter(rateLimiterOptions =>
     // 2. for POST,PATCH,DELETE
     rateLimiterOptions.AddFixedWindowLimiter("writeLimiter", options =>
     {
-        options.PermitLimit = 3; 
+        options.PermitLimit = 3;
         options.Window = TimeSpan.FromMinutes(1);
         options.QueueLimit = 2;
         options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
