@@ -1,4 +1,5 @@
 bin
 obj
 .env
+**/.vscode/launch.json
 **/Properties/launchSettings.json
