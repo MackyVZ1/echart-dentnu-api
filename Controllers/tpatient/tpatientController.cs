@@ -24,12 +24,54 @@ namespace backend_net6.Controllers
             _db = db;
         }
 
+        // /// <summary>
+        // /// Administrator, เวชระเบียน
+        // /// </summary>
+        // /// <returns>Create a tpatient</returns>
+        // /// <response code="201">Created a tpatient successfully</response>
+        // /// <response code="400">Tpatient data cannot be null, dn cannot be null, titleEn cannot be null, nameEn cannot be null, surnameEn cannot be null, sex cannot be null, maritalStatus cannot be null, idNo cannot be null, age cannot be null, occupation cannot be null, phoneOffice cannot be null, emerNotify cannot be null, emerAddress cannot be null, parent cannot be null, parentPhone cannot be null, physician cannot be null, physicianOffice cannot be null, physicianPhone cannot be null, otherAddress cannot be null</response>
+        // /// <response code="401">Unauthorized</response>
+        // /// <response code="403">Forbidden</response>
+        // /// <response code="500">Internal Server Error</response>
+        // [HttpPost]
+        // [ProducesResponseType(StatusCodes.Status201Created)]
+        // [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        // [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        // [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        // [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        // [Authorize(Roles = "Administrator, เวชระเบียน")]
+        // [EnableRateLimiting("writeLimiter")]
+        // public async Task<IActionResult> PostTpatient([FromBody] tpatientModel patient)
+        // {
+        //     _logger.LogDebug("POST /api/tpatient");
+        //     if (patient == null) return BadRequest("Tpatient data cannot be null");
+
+        //     // ตรวจสอบ required field
+        //     if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        //     try
+        //     {
+
+        //         patient.UpdateTime = DateTime.UtcNow;
+
+        //         _db.Tpatients.Add(patient);
+        //         await _db.SaveChangesAsync();
+
+        //         return StatusCode(201, "Created a tpatient successfully");
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         _logger.LogError(e, "Error creating a tpatient.");
+        //         return StatusCode(500, "Internal Server Error");
+        //     }
+        // }
+
         /// <summary>
         /// Administrator, เวชระเบียน
         /// </summary>
         /// <returns>Create a tpatient</returns>
-        /// <response code="201">Created a tpatient successfully</response>
-        /// <response code="400">Tpatient data cannot be null, dn cannot be null, titleEn cannot be null, nameEn cannot be null, surnameEn cannot be null, sex cannot be null, maritalStatus cannot be null, idNo cannot be null, age cannot be null, occupation cannot be null, phoneOffice cannot be null, emerNotify cannot be null, emerAddress cannot be null, parent cannot be null, parentPhone cannot be null, physician cannot be null, physicianOffice cannot be null, physicianPhone cannot be null, otherAddress cannot be null</response>
+        /// <response code="201">Created a tpatient and screeningrecord successfully</response>
+        /// <response code="400">Tpatient data cannot be null...</response>
         /// <response code="401">Unauthorized</response>
         /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
@@ -44,27 +86,41 @@ namespace backend_net6.Controllers
         public async Task<IActionResult> PostTpatient([FromBody] tpatientModel patient)
         {
             _logger.LogDebug("POST /api/tpatient");
-            if (patient == null) return BadRequest("Tpatient data cannot be null");
 
-            // ตรวจสอบ required field
+            if (patient == null) return BadRequest("Tpatient data cannot be null");
             if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            using var transaction = await _db.Database.BeginTransactionAsync();
 
             try
             {
-
-                patient.UpdateTime = DateTime.Now;
-
+                // เพิ่มผู้ป่วย
+                patient.UpdateTime = DateTime.UtcNow;
                 _db.Tpatients.Add(patient);
                 await _db.SaveChangesAsync();
 
-                return StatusCode(201, "Created a tpatient successfully");
+                // เพิ่มใน screeningrecord
+                var screening = new screeningrecordModel
+                {
+                    dn = patient.DN,
+                    updateAt = DateTime.UtcNow
+                };
+                _db.Screening.Add(screening);
+                await _db.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return StatusCode(201, "Created a tpatient and screeningrecord successfully");
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error creating a tpatient.");
-                return StatusCode(500, "Internal Server Error");
+                await transaction.RollbackAsync();
+                _logger.LogError(e, "Error creating tpatient and screeningrecord.");
+                return StatusCode(500, $"Internal Server Error: {e.InnerException?.Message ?? e.Message}");
             }
         }
+
+
 
         /// <summary>
         /// Administrator, เวชระเบียน
@@ -281,7 +337,7 @@ namespace backend_net6.Controllers
                 if (patchDto.Bdate != null) patient.Bdate = patchDto.Bdate;
                 if (patchDto.FromHospital != null) patient.FromHospital = patchDto.FromHospital;
 
-                patient.UpdateTime = DateTime.Now;
+                patient.UpdateTime = DateTime.UtcNow;
 
                 await _db.SaveChangesAsync();
 

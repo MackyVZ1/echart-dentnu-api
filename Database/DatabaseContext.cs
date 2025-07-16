@@ -11,10 +11,8 @@ namespace echart_dentnu_api.Database
         public DbSet<tbdentalrecorduserModel> Tbdentalrecordusers { get; set; } = null!;
         public DbSet<tbroleModel> Tbroles { get; set; } = null!;
         public DbSet<tbclinicModel> Tbclinics { get; set; } = null!;
-
         public DbSet<tpatientModel> Tpatients { get; set; } = null!;
-
-
+        public DbSet<screeningrecordModel> Screening { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -23,6 +21,7 @@ namespace echart_dentnu_api.Database
             modelBuilder.Entity<tbroleModel>().ToTable("tbrole");
             modelBuilder.Entity<tbclinicModel>().ToTable("tbclinic");
             modelBuilder.Entity<tpatientModel>().ToTable("t_patient");
+            modelBuilder.Entity<screeningrecordModel>().ToTable("screeningrecord");
 
             base.OnModelCreating(modelBuilder);
         }
