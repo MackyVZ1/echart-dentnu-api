@@ -285,4 +285,5 @@ namespace echart_dentnu_api.Models
         [Required]
         public DateTime UpdateTime { get; set; }
     }
+
 }
