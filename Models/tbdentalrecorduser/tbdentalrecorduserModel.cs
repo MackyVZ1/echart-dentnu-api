@@ -140,4 +140,39 @@ namespace echart_dentnu_api.Models
         [StringLength(255, ErrorMessage = "clinicid cannot exceed 255 characters")]
         public string? Clinicid { get; set; }
     }
+
+    public class tbdentalrecorduserTeacherDto
+    {
+        [Key]
+        [Column("userId")]
+        public int UserId { get; set; }
+
+        [Column("tName")]
+        public string? Tname { get; set; }
+
+        [Column("fName")]
+        public string Fname { get; set; } = string.Empty;
+
+        [Column("lName")]
+        public string? Lname { get; set; }
+    }
+
+    public class tbdentalrecorduserStudentDto
+    {
+        [Key]
+        [Column("userId")]
+        public int UserId { get; set; }
+
+        [Column("tName")]
+        public string? Tname { get; set; }
+
+        [Column("fName")]
+        public string Fname { get; set; } = string.Empty;
+
+        [Column("lName")]
+        public string? Lname { get; set; }
+        
+        [Column("roleID")]
+        public int RoleID { get; set; }
+    }
 }

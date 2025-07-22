@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using echart_dentnu_api.Database;
-using Microsoft.AspNetCore.RateLimiting; // Add this line if your Database context is in this namespace
+using Microsoft.AspNetCore.RateLimiting;
+using Google.Rpc; // Add this line if your Database context is in this namespace
 
 namespace backend_net6.Controllers
 {
@@ -198,6 +199,133 @@ namespace backend_net6.Controllers
                 return StatusCode(500, "Internal Server Error");
             }
         }
+        
+        /// <summary>
+        /// Administrator
+        /// </summary>
+        /// <returns>Fetch a tbdentalrecorduser</returns>
+        /// <response code="200">Tbdentalrecorduser's info</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="404">Tbdentalrecorduser not found</response>
+        /// <response code="500">Internal Server Error</response>
+        [HttpGet("teacher")] // อาจารย์
+        [ProducesResponseType(typeof(List<tbdentalrecorduserTeacherDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Authorize(Roles = "Administrator")]
+        [EnableRateLimiting("readLimiter")]
+        public async Task<ActionResult<List<tbdentalrecorduserTeacherDto>>> GetTbdentalrecordusersTeacher([FromQuery] string? clinicid)
+        {
+            _logger.LogDebug($"GET /api/tbdentalrecorduser/teacher with query: clinicid={clinicid}");
+
+            try
+            {
+                IQueryable<tbdentalrecorduserModel> query = _db.Tbdentalrecordusers.Where(u => u.RoleID == 5);
+
+                if (!string.IsNullOrWhiteSpace(clinicid) && clinicid != "0")
+                {
+                    query = query.Where(u => u.Clinicid == clinicid);
+                }
+
+                var users = await query.OrderByDescending(u => u.UserId).Select(user => new tbdentalrecorduserTeacherDto
+                {
+                    UserId = user.UserId,
+                    Tname = user.Tname,
+                    Fname = user.Fname,
+                    Lname = user.Lname
+                })
+                    .ToListAsync();
+                //var users = await query.OrderByDescending(u => u.UserId).ToListAsync();
+
+                if (users == null || !users.Any())
+                {
+                    return NotFound("Tbdentalrecorduser teacher list not found");
+                }
+
+                return Ok(users);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error fetching tbdentalrecorduser teacher list");
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
+
+        /// <summary>
+        /// Administrator
+        /// </summary>
+        /// <returns> Fetch a tbdentalrecorduser</returns>
+        /// <response code="200">Tbdentalrecorduser's info</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="404">Tbdentalrecorduser not found</response>
+        /// <response code="500">Internal Server Error</response>
+        [HttpGet("student")] // ป.ตรี และ ป.โท
+        [ProducesResponseType(typeof(List<tbdentalrecorduserStudentDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Authorize(Roles = "Administrator")]
+        [EnableRateLimiting("readLimiter")]
+        public async Task<ActionResult<List<tbdentalrecorduserStudentDto>>> GetTbdentalrecorduserStudents([FromQuery] string? clinicid, [FromQuery] int? roleid)
+        {
+            _logger.LogDebug($"GET /api/tbdentalrecorduser/student with query: clinicid={clinicid}, roleid={roleid}");
+
+            try
+            {
+                // ดึงเฉพาะ Role ป.ตรี(6) หรือ ป.โท(9)
+                var validRoles = new List<int> { 6, 9 };
+
+                IQueryable<tbdentalrecorduserModel> query = _db.Tbdentalrecordusers.AsQueryable();
+
+                if (!string.IsNullOrWhiteSpace(clinicid) && clinicid != "0")
+                {
+                    // ถ้าใส่ clinicid จะแสดงเฉพาะนิสิตป.โท
+                    query = query.Where(u => u.Clinicid == clinicid && u.RoleID == 9);
+                }
+                else
+                {
+                    // ถ้าไม่ใส่ clinicid จะแสดงทั้งนิสิตป.ตรีและป.โท
+                    query = query.Where(u => validRoles.Contains(u.RoleID));
+                }
+
+                if (roleid.HasValue)
+                {
+                    if (!validRoles.Contains(roleid.Value))
+                    {
+                        return BadRequest("Invalid roleid. Only 6 (ป.ตรี) or 9 (ป.โท) are allowed.");
+                    }
+
+                    query = query.Where(u => u.RoleID == roleid.Value);
+                }
+
+                var users = await query.OrderByDescending(u => u.UserId).Select(user => new tbdentalrecorduserStudentDto
+                {
+                    UserId = user.UserId,
+                    Tname = user.Tname,
+                    Fname = user.Fname,
+                    Lname = user.Lname,
+                    RoleID = user.RoleID
+                }).ToListAsync();
+
+                if (users == null || !users.Any())
+                {
+                    return NotFound("tbdentalrecorduser student list not found");
+                }
+
+                return Ok(users);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error fetching tbdentalrecorduser student list");
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
+
         /// <summary>
         /// Administrator
         /// </summary>
@@ -305,5 +433,4 @@ namespace backend_net6.Controllers
             public string? ClinicId { get; set; }
         }
     }
-
 }

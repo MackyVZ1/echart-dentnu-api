@@ -3,6 +3,7 @@ using echart_dentnu_api.Database;
 using echart_dentnu_api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
@@ -70,8 +71,8 @@ namespace backend_net6.Controllers
         /// Administrator, เวชระเบียน
         /// </summary>
         /// <returns>Create a tpatient</returns>
-        /// <response code="201">Created a tpatient and screeningrecord successfully</response>
-        /// <response code="400">Tpatient data cannot be null...</response>
+        /// <response code="201">Created a tpatient successfully</response>
+        /// <response code="400">Tpatient data cannot be null, dn cannot be null, titleEn cannot be null, nameEn cannot be null, surnameEn cannot be null, sex cannot be null, maritalStatus cannot be null, idNo cannot be null, age cannot be null, occupation cannot be null, phoneOffice cannot be null, emerNotify cannot be null, emerAddress cannot be null, parent cannot be null, parentPhone cannot be null, physician cannot be null, physicianOffice cannot be null, physicianPhone cannot be null, otherAddress cannot be null</response>
         /// <response code="401">Unauthorized</response>
         /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
@@ -83,44 +84,43 @@ namespace backend_net6.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize(Roles = "Administrator, เวชระเบียน")]
         [EnableRateLimiting("writeLimiter")]
-        public async Task<IActionResult> PostTpatient([FromBody] tpatientModel patient)
+        public async Task<IActionResult> PostTpatient([FromBody] TpatientWithScreeningDto data)
         {
             _logger.LogDebug("POST /api/tpatient");
 
-            if (patient == null) return BadRequest("Tpatient data cannot be null");
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (data == null || data.Tpatient == null || data.Screening == null)
+            {
+                return BadRequest("Tpatient or Screening data cannot be null");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
             using var transaction = await _db.Database.BeginTransactionAsync();
 
             try
             {
-                // เพิ่มผู้ป่วย
-                patient.UpdateTime = DateTime.UtcNow;
-                _db.Tpatients.Add(patient);
+                data.Tpatient.UpdateTime = DateTime.UtcNow;
+                _db.Tpatients.Add(data.Tpatient);
                 await _db.SaveChangesAsync();
 
-                // เพิ่มใน screeningrecord
-                var screening = new screeningrecordModel
-                {
-                    dn = patient.DN,
-                    updateAt = DateTime.UtcNow
-                };
-                _db.Screening.Add(screening);
+                data.Screening.dn = data.Tpatient.DN;
+                data.Screening.updateAt = DateTime.UtcNow;
+                _db.Screening.Add(data.Screening);
                 await _db.SaveChangesAsync();
 
                 await transaction.CommitAsync();
 
-                return StatusCode(201, "Created a tpatient and screeningrecord successfully");
+                return StatusCode(201, "Create a tpatient and screeningrecord successfully");
             }
             catch (Exception e)
             {
-                await transaction.RollbackAsync();
-                _logger.LogError(e, "Error creating tpatient and screeningrecord.");
-                return StatusCode(500, $"Internal Server Error: {e.InnerException?.Message ?? e.Message}");
+                _logger.LogDebug(e, "Error create tpatient and screening");
+                return StatusCode(500, "Internal server error");
             }
         }
-
-
 
         /// <summary>
         /// Administrator, เวชระเบียน
@@ -364,6 +364,12 @@ namespace backend_net6.Controllers
             [Required(ErrorMessage = "limit must be at least 1")]
             public int Limit { get; set; }
             public string? Keyword { get; set; }
+        }
+
+        public class TpatientWithScreeningDto
+        {
+            public tpatientModel? Tpatient { get; set; }
+            public screeningrecordModel? Screening { get; set; }
         }
 
     }
