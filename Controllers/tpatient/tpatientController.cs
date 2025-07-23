@@ -266,6 +266,13 @@ namespace backend_net6.Controllers
 
                 if (patient == null) return NotFound("Tpatient not found");
 
+                // screeningrecord ที่เชื่อมกับ dn นี้
+                var screening = await _db.Screening.FirstOrDefaultAsync(u => u.dn == dn);
+                if (screening != null)
+                {
+                    _db.Screening.Remove(screening);
+                }
+                // ลบคนไข้
                 _db.Tpatients.Remove(patient);
                 await _db.SaveChangesAsync();
 
