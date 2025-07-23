@@ -27,6 +27,7 @@ namespace echart_dentnu_api.Models
         public uint? temperature { get; set; }
 
         [Column("treatmentUrgency")]
+        [EnumDataType(typeof(treatmentUrgency))]
         public treatmentUrgency treatmentUrgency { get; set; }
 
         [Column("bloodpressure")]
