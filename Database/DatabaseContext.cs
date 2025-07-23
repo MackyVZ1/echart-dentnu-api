@@ -22,6 +22,8 @@ namespace echart_dentnu_api.Database
             modelBuilder.Entity<tbclinicModel>().ToTable("tbclinic");
             modelBuilder.Entity<tpatientModel>().ToTable("t_patient");
             modelBuilder.Entity<screeningrecordModel>().ToTable("screeningrecord");
+            
+            modelBuilder.Entity<screeningrecordModel>().Property(e => e.treatmentUrgency).HasConversion<string>();
 
             base.OnModelCreating(modelBuilder);
         }
