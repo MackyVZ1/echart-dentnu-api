@@ -3,12 +3,11 @@ using echart_dentnu_api.Database;
 using echart_dentnu_api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 
-namespace backend_net6.Controllers
+namespace echart_dentnu_api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
