@@ -35,8 +35,8 @@ namespace echart_dentnu_api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        // [Authorize(Roles = "Administrator")]
-        // [EnableRateLimiting("readLimiter")]
+        [Authorize(Roles = "Administrator")]
+        [EnableRateLimiting("readLimiter")]
         public async Task<ActionResult<tbclinicModel>> GetTbclinic()
         {
             _logger.LogDebug("GET /api/tbclinic");
