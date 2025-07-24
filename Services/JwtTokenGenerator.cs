@@ -34,6 +34,7 @@ namespace echart_dentnu_api.Services
                     UserId = user.UserId.ToString(),
                     Users = user.Users,
                     RoleID = user.RoleID,
+                    ClinicId = user.Clinicid,
                 };
             }
             catch (Exception ex)
